@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:chat/layout/home.dart';
-import 'package:chat/module/edit_profile/edit_profile_screen_2.dart';
+import 'package:chat/module/edit_profile/edit_profile_screen.dart';
 import 'package:chat/module/login/login_screen.dart';
 import 'package:chat/network/local/cache_helper.dart';
 import 'package:chat/shared/components/components.dart';
