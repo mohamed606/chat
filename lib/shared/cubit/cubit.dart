@@ -36,6 +36,7 @@ class ChatAppCubit extends Cubit<ChatAppStates> {
   File? profileImage;
   File? coverImage;
   File? postImage;
+  List<PostModel> posts = [];
   final picker = ImagePicker();
 
   Future<void> getUserData() async {
@@ -235,6 +236,20 @@ class ChatAppCubit extends Cubit<ChatAppStates> {
   void removePostImage(){
     postImage = null;
     emit(ChatAppRemovePostImage());
+  }
+
+  void getPosts(){
+    FirebaseFirestore.instance.collection('posts')
+        .get()
+        .then((value){
+          value.docs.forEach((element) {
+            posts.add(PostModel.fromJson(element.data()));
+          });
+          emit(ChatAppGetPostsSuccessState());
+    })
+        .catchError((error){
+       emit(ChatAppGetPostsErrorState());
+    });
   }
 }
 

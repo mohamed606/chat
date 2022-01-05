@@ -31,3 +31,6 @@ class ChatAppCreatePostErrorState extends ChatAppStates{}
 class ChatAppPostImagePickedSuccessState extends ChatAppStates{}
 class ChatAppPostImagePickedErrorState extends ChatAppStates{}
 class ChatAppRemovePostImage extends ChatAppStates{}
+class ChatAppGetPostsSuccessState extends ChatAppStates{}
+class ChatAppGetPostsLoadingState extends ChatAppStates{}
+class ChatAppGetPostsErrorState extends ChatAppStates{}
