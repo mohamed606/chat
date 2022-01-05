@@ -25,3 +25,9 @@ class ChatAppUpdateUserBioLoadingState extends ChatAppStates{}
 class ChatAppUpdateUserBioSuccessState extends ChatAppStates{}
 class ChatAppUpdateUserDetailsLoadingState extends ChatAppStates{}
 class ChatAppUpdateUserDetailsSuccessState extends ChatAppStates{}
+class ChatAppCreatePostLoadingState extends ChatAppStates{}
+class ChatAppCreatePostSuccessState extends ChatAppStates{}
+class ChatAppCreatePostErrorState extends ChatAppStates{}
+class ChatAppPostImagePickedSuccessState extends ChatAppStates{}
+class ChatAppPostImagePickedErrorState extends ChatAppStates{}
+class ChatAppRemovePostImage extends ChatAppStates{}

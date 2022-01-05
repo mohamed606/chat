@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:chat/model/post_model.dart';
 import 'package:chat/model/user_model.dart';
 import 'package:chat/module/chats/chats_screen.dart';
 import 'package:chat/module/feeds/feeds_screen.dart';
@@ -34,6 +35,7 @@ class ChatAppCubit extends Cubit<ChatAppStates> {
   ];
   File? profileImage;
   File? coverImage;
+  File? postImage;
   final picker = ImagePicker();
 
   Future<void> getUserData() async {
@@ -159,24 +161,24 @@ class ChatAppCubit extends Cubit<ChatAppStates> {
     });
   }
 
-  Future<void> updateUserBio(String bio) async{
+  Future<void> updateUserBio(String bio) async {
     emit(ChatAppUpdateUserBioLoadingState());
     return await FirebaseFirestore.instance
         .collection(USERS_COLLECTION)
         .doc(user!.userId)
-        .update({'bio': bio})
-        .then((value){
-          user!.bio = bio;
-          emit(ChatAppUpdateUserBioSuccessState());
+        .update({'bio': bio}).then((value) {
+      user!.bio = bio;
+      emit(ChatAppUpdateUserBioSuccessState());
     });
   }
-  Future<void> updateUserDetails({required String name, required String phone}) async{
+
+  Future<void> updateUserDetails(
+      {required String name, required String phone}) async {
     emit(ChatAppUpdateUserDetailsLoadingState());
     return await FirebaseFirestore.instance
         .collection(USERS_COLLECTION)
         .doc(user!.userId)
-        .update({'name': name, 'phone':phone})
-        .then((value){
+        .update({'name': name, 'phone': phone}).then((value) {
       user!.name = name;
       user!.phone = phone;
       emit(ChatAppUpdateUserDetailsSuccessState());
@@ -184,9 +186,56 @@ class ChatAppCubit extends Cubit<ChatAppStates> {
   }
 
   String getLastPathSegment(String path) {
-    return Uri
-        .file(path)
-        .pathSegments
-        .last;
+    return Uri.file(path).pathSegments.last;
+  }
+
+  Future<void> getPostImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      postImage = File(pickedFile.path);
+      emit(ChatAppCoverImagePickedSuccessState());
+    } else {
+      print('No image selected.');
+      emit(ChatAppPostImagePickedErrorState());
+    }
+  }
+
+  void uploadPostImage({required String dateTime, required String text}) {
+    emit(ChatAppCreatePostLoadingState());
+    firebase_storage.FirebaseStorage.instance
+        .ref()
+        .child('posts/${getLastPathSegment(postImage!.path)}')
+        .putFile(postImage!)
+        .then((value) {
+      value.ref.getDownloadURL().then((value) {
+        createPost(dateTime: dateTime, text: text, postImage: value);
+      }).catchError((error) {
+        emit(ChatAppCreatePostErrorState());
+      });
+    }).catchError((error) {
+      emit(ChatAppCreatePostErrorState());
+    });
+  }
+
+  void createPost(
+      {required String dateTime, required String text, String? postImage}) {
+    emit(ChatAppCreatePostLoadingState());
+    PostModel post = PostModel(user!.name, user!.userId, user!.profilePic,
+        dateTime, text, postImage ?? '');
+    FirebaseFirestore.instance
+        .collection('posts')
+        .add(post.toMap())
+        .then((value) {
+          emit(ChatAppCreatePostSuccessState());
+    }).catchError((error) {
+      emit(ChatAppCreatePostErrorState());
+    });
+  }
+
+  void removePostImage(){
+    postImage = null;
+    emit(ChatAppRemovePostImage());
   }
 }
+
+
