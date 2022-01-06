@@ -110,17 +110,6 @@ class EditProfileScreen extends StatelessWidget {
         });
   }
 
-  Widget getMySeparator() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: Container(
-        width: double.infinity,
-        height: 1.2,
-        color: Colors.grey[300],
-      ),
-    );
-  }
-
   Widget getDefaultRowForEditingUserProfile(
       String text, BuildContext context, VoidCallback onClick) {
     return Row(

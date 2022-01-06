@@ -17,7 +17,7 @@ class FeedsScreen extends StatelessWidget {
         var chatAppCubit = ChatAppCubit.get(context);
         var user = chatAppCubit.user;
         List<PostModel> posts = chatAppCubit.posts;
-        return posts.isEmpty
+        return posts.isEmpty && user != null
             ? circularProgressIndicator()
             : SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -214,7 +214,7 @@ class FeedsScreen extends StatelessWidget {
                               width: 5.0,
                             ),
                             Text(
-                              "1200",
+                              '${post.likes}',
                               style: Theme.of(context).textTheme.caption,
                             ),
                           ],
@@ -300,7 +300,9 @@ class FeedsScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  onTap: () {},
+                  onTap: () {
+                    ChatAppCubit.get(context).likePost(post.postId);
+                  },
                 )
               ],
             ),

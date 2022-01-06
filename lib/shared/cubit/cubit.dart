@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:chat/model/message_model.dart';
 import 'package:chat/model/post_model.dart';
 import 'package:chat/model/user_model.dart';
 import 'package:chat/module/chats/chats_screen.dart';
@@ -37,6 +38,8 @@ class ChatAppCubit extends Cubit<ChatAppStates> {
   File? coverImage;
   File? postImage;
   List<PostModel> posts = [];
+  List<UserModel> users = [];
+  List<MessageModel> messages = [];
   final picker = ImagePicker();
 
   Future<void> getUserData() async {
@@ -57,6 +60,9 @@ class ChatAppCubit extends Cubit<ChatAppStates> {
   }
 
   void changeBottomNavIndex(int index) {
+    if (index == 1) {
+      getUsers();
+    }
     if (index == 2) {
       emit(ChatAppNewPostState());
     } else {
@@ -227,30 +233,113 @@ class ChatAppCubit extends Cubit<ChatAppStates> {
         .collection('posts')
         .add(post.toMap())
         .then((value) {
-          emit(ChatAppCreatePostSuccessState());
+      emit(ChatAppCreatePostSuccessState());
     }).catchError((error) {
       emit(ChatAppCreatePostErrorState());
     });
   }
 
-  void removePostImage(){
+  void removePostImage() {
     postImage = null;
     emit(ChatAppRemovePostImage());
   }
 
-  void getPosts(){
-    FirebaseFirestore.instance.collection('posts')
-        .get()
-        .then((value){
-          value.docs.forEach((element) {
-            posts.add(PostModel.fromJson(element.data()));
-          });
-          emit(ChatAppGetPostsSuccessState());
-    })
-        .catchError((error){
-       emit(ChatAppGetPostsErrorState());
+  void getPosts() {
+    FirebaseFirestore.instance.collection('posts').get().then((value) {
+      value.docs.forEach((element) {
+        PostModel post = PostModel.fromJson(element.data());
+        post.postId = element.id;
+        posts.add(post);
+        element.reference.collection('likes').get().then((value) {
+          post.likes = value.docs.length;
+        }).catchError((error) {});
+      });
+      emit(ChatAppGetPostsSuccessState());
+    }).catchError((error) {
+      emit(ChatAppGetPostsErrorState());
+    });
+  }
+
+  void likePost(String postId) {
+    FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postId)
+        .collection('likes')
+        .doc(user!.userId)
+        .set({
+      'like': true,
+    }).then((value) {
+      emit(ChatAppLikePostSuccessState());
+    }).catchError((error) {
+      emit(ChatAppLikePostErrorState());
+    });
+  }
+
+  void getUsers() {
+    users.clear();
+    emit(ChatAppGetAllUserLoadingState());
+    FirebaseFirestore.instance.collection('users').get().then((value) {
+      value.docs.forEach((element) {
+        if (element.data()['userId'] != user!.userId)
+          users.add(UserModel.fromJson(element.data()));
+      });
+      emit(ChatAppGetAllUserSuccessState());
+    }).catchError((error) {
+      emit(ChatAppGetAllUserErrorState());
+    });
+  }
+
+  void sendMessage(
+      {required String receiverId,
+      required String dateTime,
+      required String text}) {
+    MessageModel message = MessageModel(
+      senderId: user!.userId,
+      receiverId: receiverId,
+      dateTime: dateTime,
+      text: text,
+    );
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.userId)
+        .collection('chats')
+        .doc(receiverId)
+        .collection('messages')
+        .add(message.toMap())
+        .then((value) {
+      emit(ChatAppSendMessageSuccessState());
+    }).catchError((error) {
+      emit(ChatAppSendMessageErrorState());
+    });
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(receiverId)
+        .collection('chats')
+        .doc(user!.userId)
+        .collection('messages')
+        .add(message.toMap())
+        .then((value) {
+      emit(ChatAppSendMessageSuccessState());
+    }).catchError((error) {
+      emit(ChatAppSendMessageErrorState());
+    });
+  }
+
+  void getMessages({required String receiverId}) {
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.userId)
+        .collection('chats')
+        .doc(receiverId)
+        .collection('messages')
+        .orderBy('dateTime')
+        .snapshots()
+        .listen((event) {
+      messages.clear();
+      for (var element in event.docs) {
+        messages.add(MessageModel.fromJson(element.data()));
+      }
+      emit(ChatAppReceiveMessagesSuccessState());
     });
   }
 }
-
-

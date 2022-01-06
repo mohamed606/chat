@@ -9,6 +9,7 @@ import 'package:chat/shared/cubit/cubit.dart';
 import 'package:chat/shared/cubit/states.dart';
 import 'package:chat/shared/styles/themes.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -23,8 +24,9 @@ void main() async {
     blocObserver: MyBlocObserver(),
   );
   await Firebase.initializeApp();
-  await CacheHelper.init();
+  var toke = await FirebaseMessaging.instance.getToken();
 
+  await CacheHelper.init();
   Widget startScreen;
   if(CacheHelper.hasKey(key: USERID)){
     startScreen = HomeScreen();

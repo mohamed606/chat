@@ -34,3 +34,14 @@ class ChatAppRemovePostImage extends ChatAppStates{}
 class ChatAppGetPostsSuccessState extends ChatAppStates{}
 class ChatAppGetPostsLoadingState extends ChatAppStates{}
 class ChatAppGetPostsErrorState extends ChatAppStates{}
+class ChatAppLikePostSuccessState extends ChatAppStates{}
+class ChatAppLikePostLoadingState extends ChatAppStates{}
+class ChatAppLikePostErrorState extends ChatAppStates{}
+class ChatAppGetAllUserLoadingState extends ChatAppStates{}
+class ChatAppGetAllUserSuccessState extends ChatAppStates{}
+class ChatAppGetAllUserErrorState extends ChatAppStates{}
+class ChatAppSendMessageSuccessState extends ChatAppStates{}
+class ChatAppSendMessageErrorState extends ChatAppStates{}
+class ChatAppReceiveMessageSuccessState extends ChatAppStates{}
+class ChatAppReceiveMessageErrorState extends ChatAppStates{}
+class ChatAppReceiveMessagesSuccessState extends ChatAppStates{}

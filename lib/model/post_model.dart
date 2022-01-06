@@ -7,6 +7,8 @@ class PostModel {
   late String dateTime;
   late String text;
   late String postImage;
+  late String postId;
+  int likes = 0;
 
   PostModel(this.name, this.userId, this.profilePic, this.dateTime, this.text,
       this.postImage);
